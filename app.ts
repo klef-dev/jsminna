@@ -1,5 +1,7 @@
 import express, { Application, Request, Response } from "express";
 import mongoose from "mongoose";
+import cors from "cors";
+
 import router from "./routes/api";
 
 const app: Application = express();
@@ -8,6 +10,7 @@ const port: Number = 5000 || process.env.PORT;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Start MongoDB
 const db: string = "mongodb://localhost:27017/store";
