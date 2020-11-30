@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 
 // Models
 import User from "../models/user";
+// Middleware
+import { verifyToken } from "../middleware/verifyToken";
 
 const router: Router = Router();
 
@@ -119,6 +121,12 @@ router.post("/login", async (request: Request, response: Response) => {
   } catch (error) {
     response.json({ msg: "Database error", error: true });
   }
+});
+
+// Suggest
+router.get("/suggest", verifyToken, (request: Request, response: Response) => {
+  const { authUser } = request.body;
+  response.json({ authUser });
 });
 
 export default router;
