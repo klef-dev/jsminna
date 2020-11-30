@@ -70,8 +70,55 @@ router.post("/signup", async (request: Request, response: Response) => {
   }
 });
 
-router.get("/login", (request: Request, response: Response) => {
-  return response.json({ msg: "Login" });
+router.post("/login", async (request: Request, response: Response) => {
+  let { email, password } = request.body;
+  let errors = [];
+  if (!email) {
+    errors.push({
+      text: "Please provide your email",
+      field: "email",
+    });
+  }
+  if (!password) {
+    errors.push({
+      text: "Enter your password",
+      field: "password",
+    });
+  }
+  if (errors.length > 0) {
+    return response.json({
+      errors,
+      email,
+      password,
+    });
+  }
+  try {
+    const findUser = await User.findOne({ email });
+    if (!findUser) {
+      return response.json({
+        msg: "Incorrect Username or password",
+        error: true,
+      });
+    }
+    const match = await bcrypt.compare(password, findUser.password);
+    if (match) {
+      const user = {
+        id: findUser.id,
+        email,
+      };
+      const token = jwt.sign(user, "secret", {
+        expiresIn: "1h",
+      });
+      response.json({ token });
+    } else {
+      response.json({
+        msg: "Incorrect Username or password",
+        error: true,
+      });
+    }
+  } catch (error) {
+    response.json({ msg: "Database error", error: true });
+  }
 });
 
 export default router;
